@@ -11,9 +11,9 @@ import (
 
 func StartServer() {
 	r := gin.Default()
-	repo := memory.NewTenantInMemory()
-	svc := service.NewTenantService(repo)
-	tenantHandler := handler.NewTenantHandler(svc)
+	repository := memory.NewTenantInMemory()
+	service := service.NewTenantService(repository)
+	tenantHandler := handler.NewTenantHandler(service)
 	admin.RegisterAdminTentantRoutes(r, tenantHandler)
 	r.Run(":8080")
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"gerenciador-condominio/internal/domain"
+	"gerenciador-condominio/internal/repository"
 	"gerenciador-condominio/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -28,17 +29,35 @@ func (h *TenantHandler) CreateTenants(c *gin.Context) {
 		Name:   req.Name,
 		Domain: req.Domain,
 	}
-	if err := h.service.Create(tenant); err != nil {
+	tenantCreated, err := h.service.Create(tenant)
+	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(201, tenant)
+	c.JSON(201, tenantCreated)
 }
 func (h *TenantHandler) List(c *gin.Context) {
 	tenantList, err := h.service.List()
 
 	if err != nil {
-		c.JSON(403, err)
+		c.JSON(403, gin.H{"error": err.Error()})
+		return
 	}
 	c.JSON(200, tenantList)
+}
+func (h *TenantHandler) Update(c *gin.Context, id string, t repository.TenantUpdate) {
+	tenantUpdated, err := h.service.Update(id, t)
+	if err != nil {
+		c.JSON(503, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, tenantUpdated)
+}
+func (h *TenantHandler) Inactivate(c *gin.Context, id string) {
+	err := h.service.Inactivate(id)
+	if err != nil {
+		c.JSON(503, err)
+		return
+	}
+	c.Status(200)
 }

@@ -70,15 +70,25 @@ func (r *TenantInMemory) Update(id string, update repository.TenantUpdate) (*dom
 	if update.PrimaryColor != nil {
 		tenant.PrimaryColor = *update.PrimaryColor
 	}
-	if update.Status != nil {
-		tenant.Status = *update.Status
-	}
 
 	r.tenants[id] = tenant
 	return &tenant, nil
 }
 
-func (r *TenantInMemory) List() []domain.Tenant {
+func (r *TenantInMemory) Inactivate(id string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	tenant, exists := r.tenants[id]
+	if !exists {
+		return errors.New("tenant not found")
+	}
+	tenant.Status = "inactive"
+	r.tenants[id] = tenant
+	return nil
+}
+
+func (r *TenantInMemory) List() ([]domain.Tenant, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -86,5 +96,5 @@ func (r *TenantInMemory) List() []domain.Tenant {
 	for _, tenant := range r.tenants {
 		tenants = append(tenants, tenant)
 	}
-	return tenants
+	return tenants, nil
 }

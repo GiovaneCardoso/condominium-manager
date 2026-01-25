@@ -2,15 +2,28 @@ package admin
 
 import (
 	"gerenciador-condominio/internal/handler"
-	"net/http"
+	"gerenciador-condominio/internal/repository"
 
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterAdminTentantRoutes(r *gin.Engine, tenantHandler *handler.TenantHandler) {
-	r.GET("/list", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"list": "[]"})
+	admin := r.Group("/admin/tenants")
+	admin.POST("/create", tenantHandler.CreateTenants)
+	admin.GET("/list", tenantHandler.List)
+	admin.PATCH("/update/:tenantId", func(ctx *gin.Context) {
+		id := ctx.Param("tenantId")
+		var body repository.TenantUpdate
+		if err := ctx.ShouldBindJSON(&body); err != nil {
+			ctx.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+
+		tenantHandler.Update(ctx, id, body)
+
 	})
-	r.POST("/admin/tenants/create", tenantHandler.CreateTenants)
-	r.GET("/admin/tenants/list", tenantHandler.List)
+	admin.PATCH("/inactivate/:tenantId", func(ctx *gin.Context) {
+		tenantId := ctx.Param("tenantId")
+		tenantHandler.Inactivate(ctx, tenantId)
+	})
 }
