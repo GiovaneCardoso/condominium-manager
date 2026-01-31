@@ -46,11 +46,21 @@ func (r *AdminUserInMemory) Inactivate(id string) error {
 func (r *AdminUserInMemory) List() ([]domain.AdminUser, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	users := make([]domain.AdminUser, len(r.users))
+	users := make([]domain.AdminUser, 0, len(r.users))
 	for _, user := range r.users {
 		users = append(users, user)
 	}
 	return users, nil
+}
+func (r *AdminUserInMemory) FindByEmail(email string) (*domain.AdminUser, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	for _, user := range r.users {
+		if user.Email == email {
+			return &user, nil
+		}
+	}
+	return nil, errors.New("User not found")
 }
 func (r *AdminUserInMemory) Update(id string, update repository.AdminUserUpdate) (*domain.AdminUser, error) {
 	r.mu.Lock()
@@ -64,9 +74,6 @@ func (r *AdminUserInMemory) Update(id string, update repository.AdminUserUpdate)
 	}
 	if update.Name != nil {
 		user.Name = *update.Name
-	}
-	if update.Email != nil {
-		user.Email = *update.Email
 	}
 	if update.Resources != nil {
 		user.Resources = *update.Resources

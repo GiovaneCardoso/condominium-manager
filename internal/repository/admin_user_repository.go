@@ -13,6 +13,7 @@ type AdminUserRepository interface {
 	Create(user *domain.AdminUser) error
 	List() ([]domain.AdminUser, error)
 	FindById(id string) (*domain.AdminUser, error)
+	FindByEmail(email string) (*domain.AdminUser, error)
 	Update(id string, update AdminUserUpdate) (*domain.AdminUser, error)
 	Inactivate(id string) error
 }
