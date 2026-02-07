@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"gerenciador-condominio/internal/domain"
 	"gerenciador-condominio/internal/repository"
 	"gerenciador-condominio/internal/service"
@@ -22,7 +21,6 @@ func NewUserAdminHandler(service *service.UserAdminService) *UserHandler {
 	return &UserHandler{service: service}
 }
 func (h *UserHandler) CreateAdminUser(c *gin.Context) {
-	fmt.Println("teste")
 	var req CreateAdminUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -47,6 +45,22 @@ func (h *UserHandler) List(c *gin.Context) {
 		return
 	}
 	c.JSON(200, users)
+}
+func (h *UserHandler) FindById(c *gin.Context, id string) {
+	user, err := h.service.FindById(id)
+	if err != nil {
+		c.JSON(503, err)
+		return
+	}
+	c.JSON(200, user)
+}
+func (h *UserHandler) FindByEmail(c *gin.Context, email string) {
+	user, err := h.service.FindByEmail(email)
+	if err != nil {
+		c.JSON(503, err)
+		return
+	}
+	c.JSON(200, user)
 }
 func (h *UserHandler) Update(c *gin.Context, id string, updateUser repository.AdminUserUpdate) {
 	userUpdated, err := h.service.Update(id, updateUser)

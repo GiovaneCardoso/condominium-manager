@@ -11,6 +11,14 @@ func RegisterAdminUserRoutes(r *gin.Engine, userHandler *handler.UserHandler) {
 	admin := r.Group("/admin/users")
 	admin.POST("/create", userHandler.CreateAdminUser)
 	admin.GET("/list", userHandler.List)
+	admin.GET("/email/:email", func(ctx *gin.Context) {
+		email := ctx.Param("email")
+		userHandler.FindByEmail(ctx, email)
+	})
+	admin.GET("/id/:userId", func(ctx *gin.Context) {
+		id := ctx.Param("userId")
+		userHandler.FindById(ctx, id)
+	})
 	admin.PATCH("/update/:userId", func(ctx *gin.Context) {
 		id := ctx.Param("userId")
 		var body repository.AdminUserUpdate

@@ -37,8 +37,12 @@ func (h *TenantHandler) CreateTenants(c *gin.Context) {
 	c.JSON(201, tenantCreated)
 }
 func (h *TenantHandler) List(c *gin.Context) {
-	println(">>> ENTROU NA ROTA TENANTS LIST")
-	c.JSON(200, gin.H{"ok": true})
+	tenants, err := h.service.List()
+	if err != nil {
+		c.JSON(503, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, tenants)
 }
 func (h *TenantHandler) Update(c *gin.Context, id string, t repository.TenantUpdate) {
 	tenantUpdated, err := h.service.Update(id, t)

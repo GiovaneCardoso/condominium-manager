@@ -56,6 +56,9 @@ func (s *UserAdminService) Inactivate(id string) error {
 func (s *UserAdminService) FindById(id string) (*domain.AdminUser, error) {
 	return s.repo.FindById(id)
 }
+func (s *UserAdminService) FindByEmail(email string) (*domain.AdminUser, error) {
+	return s.repo.FindByEmail(email)
+}
 func HashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword(
 		[]byte(password),
