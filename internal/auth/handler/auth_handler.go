@@ -1,20 +1,20 @@
-package authHandler
+package authhandler
 
 import (
-	authService "gerenciador-condominio/internal/auth/service"
+	authservice "gerenciador-condominio/internal/auth/service"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
-	service *authService.AuthService
+	service *authservice.AuthService
 }
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
-func NewAuthHandler(service *authService.AuthService) *AuthHandler {
+func NewAuthHandler(service *authservice.AuthService) *AuthHandler {
 	return &AuthHandler{service: service}
 }
 func (h *AuthHandler) Login(c *gin.Context) {

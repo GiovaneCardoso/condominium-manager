@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"gerenciador-condominio/internal/domain"
 	"gerenciador-condominio/internal/repository"
 	"gerenciador-condominio/internal/service"
@@ -21,6 +22,7 @@ func NewUserAdminHandler(service *service.UserAdminService) *UserHandler {
 	return &UserHandler{service: service}
 }
 func (h *UserHandler) CreateAdminUser(c *gin.Context) {
+	fmt.Println("teste")
 	var req CreateAdminUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})

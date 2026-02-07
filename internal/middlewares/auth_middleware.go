@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	authService "gerenciador-condominio/internal/auth/service"
+	authservice "gerenciador-condominio/internal/auth/service"
 	"gerenciador-condominio/internal/repository"
 	"net/http"
 	"strings"
@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware(tokenService *authService.TokenService, adminUserRepo repository.AdminUserRepository) gin.HandlerFunc {
+func AuthMiddleware(tokenService *authservice.TokenService, adminUserRepo repository.AdminUserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {

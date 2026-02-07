@@ -6,7 +6,7 @@ type AdminUserUpdate struct {
 	Name      *string   `json:"name"`
 	Email     *string   `json:"email"`
 	Password  *string   `json:"password"`
-	Resources *[]string `json:"resources"`
+	Resources *[]domain.Resource `json:"resources"`
 	Status    *string   `json:"status"`
 }
 type AdminUserRepository interface {

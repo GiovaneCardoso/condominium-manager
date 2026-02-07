@@ -1,14 +1,14 @@
 package server
 
 import (
-	"os"
+	"log"
 
 	"gerenciador-condominio/internal/handler"
 	"gerenciador-condominio/internal/infra/memory"
-	"gerenciador-condominio/internal/middlewares"
+	"gerenciador-condominio/internal/infra/postgres"
+	postgresconn "gerenciador-condominio/internal/infra/postgres/connection"
+	"gerenciador-condominio/internal/repository"
 
-	authHandler "gerenciador-condominio/internal/auth/handler"
-	authService "gerenciador-condominio/internal/auth/service"
 	"gerenciador-condominio/internal/routes/admin"
 	"gerenciador-condominio/internal/service"
 
@@ -17,22 +17,20 @@ import (
 
 func StartServer() {
 	r := gin.Default()
-	
-	adminUserRepo := memory.NewAdminUserInMemory()
-	tenantRepo := memory.NewTenantInMemory()
+
+	db := postgresconn.GetConnection()
+	if db == nil {
+		log.Fatal("Failed to connect to database")
+	}
+
+	var adminUserRepo repository.AdminUserRepository
+	var tenantRepo repository.TenantRepository
+	adminUserRepo = postgres.NewAdminUserPostgres(db)
+	tenantRepo = memory.NewTenantInMemory()
 
 	adminTenantHandler := adminTenantHandler(tenantRepo)
 	adminUserHandler := adminUserHandler(adminUserRepo)
-	authHandlerInstance := authHandlerInstance(adminUserRepo)
 
-	admin.RegisterAuthRoutes(r, authHandlerInstance)
-
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		jwtSecret = "dev-secret-key"
-	}
-	tokenService := authService.NewTokenService(jwtSecret)
-	_ = middlewares.AuthMiddleware(tokenService, adminUserRepo)
 
 	admin.RegisterAdminTentantRoutes(r, adminTenantHandler)
 	admin.RegisterAdminUserRoutes(r, adminUserHandler)
@@ -40,23 +38,14 @@ func StartServer() {
 	r.Run(":8080")
 }
 
-func adminTenantHandler(repo *memory.TenantInMemory) *handler.TenantHandler {
+func adminTenantHandler(repo repository.TenantRepository) *handler.TenantHandler {
 	service := service.NewTenantService(repo)
 	tenantHandler := handler.NewTenantHandler(service)
 	return tenantHandler
 }
 
-func authHandlerInstance(adminUserRepo *memory.AdminUserInMemory) *authHandler.AuthHandler {
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		jwtSecret = "dev-secret-key"
-	}
-	tokenService := authService.NewTokenService(jwtSecret)
-	authServiceInstance := authService.NewAuthService(adminUserRepo, tokenService)
-	return authHandler.NewAuthHandler(authServiceInstance)
-}
 
-func adminUserHandler(repo *memory.AdminUserInMemory) *handler.UserHandler {
+func adminUserHandler(repo repository.AdminUserRepository) *handler.UserHandler {
 	service := service.NewUserAdminService(repo)
 	userHandler := handler.NewUserAdminHandler(service)
 	return userHandler
